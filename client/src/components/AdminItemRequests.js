@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './AdminItemRequests.css';
 
 const AdminItemRequests = ({ token, onRequestsChanged }) => {
@@ -20,15 +20,7 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
   const itemTypes = ['ID Card', 'Belt', 'Tie', 'Uniform', 'Books', 'Other'];
   const statuses = ['Pending', 'Approved', 'Rejected', 'Issued'];
 
-  useEffect(() => {
-    fetchAllRequests();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters, requests]);
-
-  const fetchAllRequests = async () => {
+  const fetchAllRequests = useCallback(async () => {
     try {
       const response = await fetch('/api/item-requests/all', {
         headers: {
@@ -41,7 +33,31 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
       console.error('Error fetching requests:', error);
       setRequests([]);
     }
-  };
+  }, [token]);
+
+  const applyFilters = useCallback(() => {
+    let filtered = requests;
+
+    if (filters.status) {
+      filtered = filtered.filter((r) => r.status === filters.status);
+    }
+    if (filters.itemType) {
+      filtered = filtered.filter((r) => r.itemType === filters.itemType);
+    }
+    if (filters.className) {
+      filtered = filtered.filter((r) => r.className === filters.className);
+    }
+
+    setFilteredRequests(filtered);
+  }, [filters, requests]);
+
+  useEffect(() => {
+    fetchAllRequests();
+  }, [fetchAllRequests]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const markRequestAsSeen = async (requestId) => {
     try {
@@ -61,22 +77,6 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
     } catch (error) {
       console.error('Error marking request as seen:', error);
     }
-  };
-
-  const applyFilters = () => {
-    let filtered = requests;
-
-    if (filters.status) {
-      filtered = filtered.filter((r) => r.status === filters.status);
-    }
-    if (filters.itemType) {
-      filtered = filtered.filter((r) => r.itemType === filters.itemType);
-    }
-    if (filters.className) {
-      filtered = filtered.filter((r) => r.className === filters.className);
-    }
-
-    setFilteredRequests(filtered);
   };
 
   const handleFilterChange = (e) => {

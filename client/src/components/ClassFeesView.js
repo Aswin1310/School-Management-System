@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './ClassFeesView.css';
 
@@ -7,18 +7,11 @@ const ClassFeesView = ({ userClass, token: authToken }) => {
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
   const { token: contextToken } = useAuth();
   const token = authToken || contextToken;
 
-  useEffect(() => {
-    if (userClass) {
-      fetchClassFees();
-    }
-  }, [userClass, token]);
-
-  const fetchClassFees = async () => {
+  const fetchClassFees = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -42,7 +35,13 @@ const ClassFeesView = ({ userClass, token: authToken }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, userClass]);
+
+  useEffect(() => {
+    if (userClass) {
+      fetchClassFees();
+    }
+  }, [fetchClassFees, userClass]);
 
   const filteredFees = filterStatus
     ? fees.filter(f => f.status === filterStatus)
@@ -59,8 +58,6 @@ const ClassFeesView = ({ userClass, token: authToken }) => {
       <h2>Fees Status - {userClass}</h2>
 
       {errorMessage && <div className="message error">{errorMessage}</div>}
-      {successMessage && <div className="message success">{successMessage}</div>}
-
       <div className="fees-summary">
         <div className="summary-card pending">
           <h4>Pending Fees</h4>
