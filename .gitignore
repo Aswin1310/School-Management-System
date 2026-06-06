@@ -1,0 +1,99 @@
+# ==================== DEPENDENCIES ====================
+node_modules/
+package-lock.json
+yarn.lock
+
+# ==================== BUILD & DIST ====================
+client/build/
+server/build/
+dist/
+.next/
+.parcel-cache/
+out/
+
+# ==================== ENVIRONMENT & SECRETS ====================
+# All .env files - CRITICAL FOR SECURITY
+.env
+.env.local
+.env.*.local
+.env.development
+.env.staging
+.env.production
+.env.test
+
+# Security & Credentials - DO NOT COMMIT
+*.pem
+*.key
+*.pub
+*.crt
+*.cert
+*.jks
+.credentials
+.aws/
+secrets/
+config/secrets/
+.ssh/
+.htpasswd
+
+# ==================== IDE & EDITOR ====================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+*.sublime-project
+.emacs*
+*#
+
+# ==================== OS FILES ====================
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.directory
+._*
+
+# ==================== LOGS & DEBUG ====================
+logs/
+*.log
+npm-debug.log*
+npm-error.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ==================== CACHE & TEMPORARY ====================
+.cache/
+.eslintcache
+.stylelintcache
+.jest-cache/
+.nyc_output/
+coverage/
+*.tmp
+.vuepress/dist
+
+# ==================== TESTING ====================
+.env.test
+.env.test.local
+test-results/
+junit.xml
+
+# ==================== DATABASE ====================
+*.sqlite
+*.sqlite3
+*.db
+.mongodb/
+mongo-data/
+
+# ==================== NODE/NPM ====================
+.npm
+.node_repl_history
+*.tsbuildinfo
+
+node_modules/
+.env
+.DS_Store
