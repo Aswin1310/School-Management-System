@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './FeesManagement.css';
 
@@ -27,9 +27,35 @@ const FeesManagement = ({ token: authToken, students: initialStudents = [] }) =>
   const { token: contextToken } = useAuth();
   const token = authToken || contextToken;
 
+  const fetchFees = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('http://localhost:5000/api/fees/all', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setFees(data.data || []);
+
+        const uniqueStandards = [...new Set((data.data || []).map((fee) => fee.standard || fee.className))];
+        setStandards(uniqueStandards);
+      } else {
+        setErrorMessage('Failed to fetch fees');
+      }
+    } catch (error) {
+      setErrorMessage('Error fetching fees: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
+
   useEffect(() => {
     fetchFees();
-  }, []);
+  }, [fetchFees]);
 
   useEffect(() => {
     const uniqueStandards = Array.from(new Set(initialStudents.map((student) => student.className).filter(Boolean))).sort();
@@ -59,33 +85,6 @@ const FeesManagement = ({ token: authToken, students: initialStudents = [] }) =>
     }
     setFilteredFees(filtered);
   }, [fees, filterStandard, filterStatus]);
-
-  const fetchFees = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch('http://localhost:5000/api/fees/all', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setFees(data.data || []);
-        
-        // Extract unique standards
-        const uniqueStandards = [...new Set((data.data || []).map(f => f.standard || f.className))];
-        setStandards(uniqueStandards);
-      } else {
-        setErrorMessage('Failed to fetch fees');
-      }
-    } catch (error) {
-      setErrorMessage('Error fetching fees: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAddFees = async (e) => {
     e.preventDefault();
