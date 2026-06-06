@@ -864,9 +864,11 @@ const TeacherDashboard = () => {
     }
   };
 
-  const detailExamOptions = detailData?.marks
-    ? Array.from(new Set(detailData.marks.map((mark) => String(mark.examName || '').trim()).filter(Boolean)))
-    : [];
+  const detailExamOptions = useMemo(() => {
+    return detailData?.marks
+      ? Array.from(new Set(detailData.marks.map((mark) => String(mark.examName || '').trim()).filter(Boolean)))
+      : [];
+  }, [detailData?.marks]);
 
   useEffect(() => {
     if (!detailModalOpen) {

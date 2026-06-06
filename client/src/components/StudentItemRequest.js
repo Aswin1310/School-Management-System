@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './StudentItemRequest.css';
-import { useAuth } from '../context/AuthContext';
 
 const StudentItemRequest = ({ token, studentId }) => {
   const [requests, setRequests] = useState([]);
@@ -16,11 +15,7 @@ const StudentItemRequest = ({ token, studentId }) => {
 
   const itemTypes = ['ID Card', 'Belt', 'Tie', 'Uniform', 'Books', 'Other'];
 
-  useEffect(() => {
-    fetchRequests();
-  }, []);
-
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     try {
       const response = await fetch('/api/item-requests/my-requests', {
         headers: {
@@ -33,7 +28,11 @@ const StudentItemRequest = ({ token, studentId }) => {
       console.error('Error fetching requests:', error);
       setRequests([]);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    fetchRequests();
+  }, [fetchRequests]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

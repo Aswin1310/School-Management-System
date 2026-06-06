@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './StudentFeesView.css';
 
@@ -12,14 +12,7 @@ const StudentFeesView = ({ studentId: propStudentId, token: propToken }) => {
   const token = propToken || contextToken;
   const studentIdValue = propStudentId || user?.id || user?._id || '';
 
-  useEffect(() => {
-    if (studentIdValue && token) {
-      setStudentId(studentIdValue);
-      fetchStudentFees(studentIdValue);
-    }
-  }, [studentIdValue, token]);
-
-  const fetchStudentFees = async (id) => {
+  const fetchStudentFees = useCallback(async (id) => {
     try {
       setLoading(true);
       const response = await fetch(
@@ -43,7 +36,14 @@ const StudentFeesView = ({ studentId: propStudentId, token: propToken }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    if (studentIdValue && token) {
+      setStudentId(studentIdValue);
+      fetchStudentFees(studentIdValue);
+    }
+  }, [fetchStudentFees, studentIdValue, token]);
 
   if (!studentId) {
     return <div className="student-fees-view"><p>Loading student information...</p></div>;

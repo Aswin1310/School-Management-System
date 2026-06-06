@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import FeesManagement from '../components/FeesManagement';
@@ -83,11 +83,30 @@ const AdminDashboard = () => {
     }
   }, [token]);
 
+  const loadCalendar = useCallback(async () => {
+    try {
+      setCalendarLoading(true);
+      setCalendarError('');
+
+      const response = await axios.get('/api/admin/calendar', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      setCalendarEntries(response.data.entries || []);
+    } catch (err) {
+      setCalendarError(err.response?.data?.message || 'Unable to load calendar');
+    } finally {
+      setCalendarLoading(false);
+    }
+  }, [token]);
+
   useEffect(() => {
     if (activeView === 'calendar') {
       loadCalendar();
     }
-  }, [activeView, token]);
+  }, [activeView, loadCalendar]);
 
   useEffect(() => {
     if (!token) {
@@ -123,25 +142,6 @@ const AdminDashboard = () => {
       window.clearInterval(intervalId);
     };
   }, [token]);
-
-  const loadCalendar = async () => {
-    try {
-      setCalendarLoading(true);
-      setCalendarError('');
-
-      const response = await axios.get('/api/admin/calendar', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      setCalendarEntries(response.data.entries || []);
-    } catch (err) {
-      setCalendarError(err.response?.data?.message || 'Unable to load calendar');
-    } finally {
-      setCalendarLoading(false);
-    }
-  };
 
   const markAllNotificationsSeen = async () => {
     if (!token) {
@@ -193,24 +193,6 @@ const AdminDashboard = () => {
       setOverviewLoading(false);
     }
   };
-
-  const filteredStudents = students.filter((student) => {
-    const query = studentSearch.trim().toLowerCase();
-
-    if (!query) {
-      return true;
-    }
-
-    return [
-      student.name,
-      student.className,
-      student.rollNo,
-      student.phone,
-      student.fatherName,
-      student.motherName,
-      student.email
-    ].some((value) => String(value || '').toLowerCase().includes(query));
-  });
 
   const filteredTeachers = teachers.filter((teacher) => {
     const query = teacherSearch.trim().toLowerCase();
@@ -793,6 +775,7 @@ const AdminDashboard = () => {
 
       {message && <div style={{ ...styles.card, ...{ backgroundColor: '#dbeafe', color: '#0c2340', marginBottom: '16px' } }}>{message}</div>}
       {error && <div style={{ ...styles.card, ...{ backgroundColor: '#93c5fd', color: '#0c2340', marginBottom: '16px' } }}>{error}</div>}
+      {calendarError && <div style={{ ...styles.card, ...{ backgroundColor: '#fee2e2', color: '#991b1b', marginBottom: '16px' } }}>{calendarError}</div>}
 
       <form onSubmit={handleSaveCalendar} style={styles.form}>
         <div style={styles.formGroup}>
