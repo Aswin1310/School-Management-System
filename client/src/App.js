@@ -11,6 +11,17 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
 
+const DebugBanner = () => {
+  const show = process.env.REACT_APP_SHOW_API === 'true';
+  if (!show) return null;
+  const api = process.env.REACT_APP_API_URL || 'not-set';
+  return (
+    <div style={{ position: 'fixed', top: 8, right: 8, background: '#111827', color: '#fff', padding: '6px 10px', borderRadius: 6, zIndex: 9999, fontSize: 12 }}>
+      API: {api}
+    </div>
+  );
+};
+
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRole }) => {
   const { isAuthenticated, userRole } = useAuth();
