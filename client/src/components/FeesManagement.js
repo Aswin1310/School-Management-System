@@ -30,7 +30,7 @@ const FeesManagement = ({ token: authToken, students: initialStudents = [] }) =>
   const fetchFees = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:5000/api/fees/all', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/fees/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -95,7 +95,7 @@ const FeesManagement = ({ token: authToken, students: initialStudents = [] }) =>
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/fees/add', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/fees/add`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -139,7 +139,7 @@ const FeesManagement = ({ token: authToken, students: initialStudents = [] }) =>
 
   const handleMarkPaid = async (feesId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/fees/mark-paid/${feesId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/fees/mark-paid/${feesId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -163,7 +163,7 @@ const FeesManagement = ({ token: authToken, students: initialStudents = [] }) =>
 
   const handleMarkPending = async (feesId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/fees/mark-pending/${feesId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/fees/mark-pending/${feesId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -188,7 +188,7 @@ const FeesManagement = ({ token: authToken, students: initialStudents = [] }) =>
   const handleDeleteFees = async (feesId) => {
     if (window.confirm('Are you sure you want to delete this fees record?')) {
       try {
-        const response = await fetch(`http://localhost:5000/api/fees/delete/${feesId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/fees/delete/${feesId}`, {
           method: 'DELETE',
           headers: {
             Authorization: `Bearer ${token}`

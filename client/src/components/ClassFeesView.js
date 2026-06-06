@@ -15,7 +15,7 @@ const ClassFeesView = ({ userClass, token: authToken }) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/fees/class/${userClass}`,
+        `${process.env.REACT_APP_API_URL}/api/fees/class/${userClass}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

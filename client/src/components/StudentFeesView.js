@@ -16,7 +16,7 @@ const StudentFeesView = ({ studentId: propStudentId, token: propToken }) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/fees/student/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/fees/student/${id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
