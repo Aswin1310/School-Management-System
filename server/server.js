@@ -12,18 +12,28 @@ const allowedOrigins = [
   'http://localhost:5173',
 ].filter(Boolean);
 
-// Middleware
-app.use(cors({
+const allowedOriginPatterns = [
+  /^https:\/\/.*\.vercel\.app$/,
+];
+
+const corsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
+    if (
+      !origin ||
+      allowedOrigins.includes(origin) ||
+      allowedOriginPatterns.some((pattern) => pattern.test(origin))
+    ) {
       return callback(null, true);
     }
 
     return callback(new Error('Not allowed by CORS'));
   },
-  credentials: true
-}));
-app.options("*", cors());
+  credentials: true,
+};
+
+// Middleware
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
