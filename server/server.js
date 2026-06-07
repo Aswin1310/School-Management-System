@@ -6,9 +6,18 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
+app.use(cors({
+  origin: [
+    "http://localhost:3000",
+    "https://school-management-system-omega-rose.vercel.app"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true
+}));
+app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+
 
 // Routes
 const studentAuthRoutes = require('./routes/studentAuth');
