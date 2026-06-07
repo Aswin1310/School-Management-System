@@ -80,6 +80,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <DebugBanner />
         <AppRoutes />
       </Router>
     </AuthProvider>
