@@ -7,11 +7,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://school-management-system-omega-rose.vercel.app"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: true,
   credentials: true
 }));
 app.options("*", cors());
