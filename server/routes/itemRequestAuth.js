@@ -10,8 +10,11 @@ const router = express.Router();
 router.post('/submit', auth, async (req, res) => {
   try {
     const { itemType, itemDescription, quantity, reason } = req.body;
-    const userId = req.user.id;
-    const userRole = req.user.role;
+    const userId = req.user?.id;
+    const userRole = req.user?.role;
+
+    // Log incoming request for debugging (remove or reduce in production)
+    console.log('ItemRequest submit called by user:', { userId, userRole, body: req.body });
 
     // Only students can submit item requests
     if (userRole !== 'student') {
@@ -25,7 +28,13 @@ router.post('/submit', auth, async (req, res) => {
     }
 
     if (!itemType || !itemDescription || !reason) {
-      return res.status(400).json({ message: 'Please provide itemType, description, and reason' });
+      return res.status(400).json({ message: 'Please provide itemType, itemDescription, and reason' });
+    }
+
+    // Coerce quantity to number and ensure it's valid
+    const qty = Number(quantity) || 1;
+    if (!Number.isInteger(qty) || qty < 1) {
+      return res.status(400).json({ message: 'Quantity must be a positive integer' });
     }
 
     // Create new item request
@@ -37,7 +46,7 @@ router.post('/submit', auth, async (req, res) => {
       standard: student.standard || student.className,
       itemType,
       itemDescription,
-      quantity: quantity || 1,
+      quantity: qty,
       reason,
       status: 'Pending',
       adminSeen: false,
