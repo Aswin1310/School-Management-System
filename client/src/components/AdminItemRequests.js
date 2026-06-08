@@ -1,6 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './AdminItemRequests.css';
 
+const API_BASE_URL = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+
+const buildApiUrl = (path) => {
+  if (!API_BASE_URL) {
+    return path;
+  }
+
+  return `${API_BASE_URL}${path}`;
+};
+
+const readResponseBody = async (response) => {
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  return text ? { message: text } : {};
+};
+
 const AdminItemRequests = ({ token, onRequestsChanged }) => {
   const [requests, setRequests] = useState([]);
   const [filteredRequests, setFilteredRequests] = useState([]);
@@ -22,12 +43,12 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
 
   const fetchAllRequests = useCallback(async () => {
     try {
-      const response = await fetch('/api/item-requests/all', {
+      const response = await fetch(buildApiUrl('/api/item-requests/all'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      const data = await response.json();
+      const data = await readResponseBody(response);
       setRequests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching requests:', error);
@@ -61,7 +82,7 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
 
   const markRequestAsSeen = async (requestId) => {
     try {
-      const response = await fetch(`/api/item-requests/mark-seen/${requestId}`, {
+      const response = await fetch(buildApiUrl(`/api/item-requests/mark-seen/${requestId}`), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -97,7 +118,7 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
     setMessage('');
 
     try {
-      const response = await fetch(`/api/item-requests/update-status/${selectedRequest._id}`, {
+      const response = await fetch(buildApiUrl(`/api/item-requests/update-status/${selectedRequest._id}`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +127,7 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
         body: JSON.stringify(updateData)
       });
 
-      const data = await response.json();
+      const data = await readResponseBody(response);
       if (response.ok) {
         setMessage('✓ Request updated successfully!');
         setSelectedRequest(null);
@@ -116,7 +137,7 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
           onRequestsChanged();
         }
       } else {
-        setMessage(`✗ Error: ${data.message}`);
+        setMessage(`✗ Error: ${data.message || 'Error updating request'}`);
       }
     } catch (error) {
       setMessage('✗ Error updating request');
@@ -130,7 +151,7 @@ const AdminItemRequests = ({ token, onRequestsChanged }) => {
     if (!window.confirm('Are you sure you want to delete this request?')) return;
 
     try {
-      const response = await fetch(`/api/item-requests/delete/${requestId}`, {
+      const response = await fetch(buildApiUrl(`/api/item-requests/delete/${requestId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

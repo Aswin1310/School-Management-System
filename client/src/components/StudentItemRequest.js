@@ -1,6 +1,27 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import './StudentItemRequest.css';
 
+const API_BASE_URL = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+
+const buildApiUrl = (path) => {
+  if (!API_BASE_URL) {
+    return path;
+  }
+
+  return `${API_BASE_URL}${path}`;
+};
+
+const readResponseBody = async (response) => {
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  return text ? { message: text } : {};
+};
+
 const StudentItemRequest = ({ token, studentId }) => {
   const [requests, setRequests] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -17,12 +38,12 @@ const StudentItemRequest = ({ token, studentId }) => {
 
   const fetchRequests = useCallback(async () => {
     try {
-      const response = await fetch('/api/item-requests/my-requests', {
+      const response = await fetch(buildApiUrl('/api/item-requests/my-requests'), {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-      const data = await response.json();
+      const data = await readResponseBody(response);
       setRequests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching requests:', error);
@@ -48,7 +69,7 @@ const StudentItemRequest = ({ token, studentId }) => {
     setMessage('');
 
     try {
-      const response = await fetch('/api/item-requests/submit', {
+      const response = await fetch(buildApiUrl('/api/item-requests/submit'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,14 +78,14 @@ const StudentItemRequest = ({ token, studentId }) => {
         body: JSON.stringify(formData)
       });
 
-      const data = await response.json();
+      const data = await readResponseBody(response);
       if (response.ok) {
         setMessage('✓ Request submitted successfully!');
         setFormData({ itemType: 'ID Card', itemDescription: '', quantity: 1, reason: '' });
         setShowForm(false);
         fetchRequests();
       } else {
-        setMessage(`✗ Error: ${data.message}`);
+        setMessage(`✗ Error: ${data.message || 'Error submitting request'}`);
       }
     } catch (error) {
       setMessage('✗ Error submitting request');
